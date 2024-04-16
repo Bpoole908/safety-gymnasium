@@ -102,11 +102,16 @@ def make(
     for key, value in kwargs.items():
         if key in env_spec_kwargs and isinstance(value, Mapping):
             # updating not copying dictionaries
-            if key == 'config':                
+            if key == 'config':    
                 # Do not update 'agent_name' or 'task_name'
-                if 'agent_name' in value and 'agent_name' in env_spec_kwargs[key]:
+                if (
+                    'agent' in value 
+                    and 'name' in value['agent'] 
+                    and 'agent' in env_spec_kwargs[key] 
+                    and 'name' in env_spec_kwargs[key]['agent']
+                ):
                     assert (
-                        env_spec_kwargs[key]['agent_name'] == value['agent_name']
+                        env_spec_kwargs[key]['agent']['name'] == value['agent']['name']
                     ), "Agent specified in the config doesn't match the agent in the `env_id`"
                 if 'task_name' in value and 'task_name' in env_spec_kwargs[key]:
                     assert (

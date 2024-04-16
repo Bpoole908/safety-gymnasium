@@ -218,7 +218,7 @@ class Underlying(abc.ABC):  # pylint: disable=too-many-instance-attributes
         self._mocaps = {}
 
         # something are parsed from pre-defined configs
-        self.agent_name = None
+        # self.agent_name = None
         self.observe_vision = False  # Observe vision from the agent
         self.debug = False
         self.observation_flatten = True  # Flatten observation into a vector
@@ -226,8 +226,8 @@ class Underlying(abc.ABC):  # pylint: disable=too-many-instance-attributes
         self.action_noise: float = (
             0.0  # Magnitude of independent per-component gaussian action noise
         )
-        self.agent_name = config['agent_name']
-        self._build_agent(self.agent_name)
+        # self.agent_name = config['agent_name']
+        # self._build_agent(self.agent_name)
         self._parse(config)
 
     def _parse(self, config: dict) -> None:
@@ -240,9 +240,12 @@ class Underlying(abc.ABC):  # pylint: disable=too-many-instance-attributes
             config (dict): Configuration dictionary.
         """
         for key, value in config.items():
-            if key in ['agent_name', 'task_name']:
+            if key in ['task_name']:
                 continue
-            if '.' in key:
+            
+            if key == 'agent':
+                 self._build_agent(value['name'], cls_kwargs=value['kwargs'])
+            elif '.' in key:
                 obj, key = key.split('.')
                 assert hasattr(self, obj) and hasattr(getattr(self, obj), key), f'Bad key {key}'
                 setattr(getattr(self, obj), key, value)
@@ -256,12 +259,13 @@ class Underlying(abc.ABC):  # pylint: disable=too-many-instance-attributes
                 assert hasattr(self, key), f'Bad key {key}'
                 setattr(self, key, value)
 
-    def _build_agent(self, agent_name: str) -> None:
+    def _build_agent(self, agent_name: str, cls_kwargs) -> None:
         """Build the agent in the world."""
         assert hasattr(agents, agent_name), 'agent not found'
         agent_cls = getattr(agents, agent_name)
-        self.agent = agent_cls(random_generator=self.random_generator)
-
+        assert 'random_generator' not in cls_kwargs, '`random_generator` can not be passed.'
+        self.agent = agent_cls(random_generator=self.random_generator, **cls_kwargs)
+        
     def _add_geoms(self, *geoms: Geom) -> None:
         """Register geom type objects into environments and set corresponding attributes."""
         for geom in geoms:
