@@ -266,7 +266,7 @@ class Underlying(abc.ABC):  # pylint: disable=too-many-instance-attributes
         assert 'random_generator' not in cls_kwargs, '`random_generator` can not be passed.'
         self.agent = agent_cls(random_generator=self.random_generator, **cls_kwargs)
         
-    def _add_geoms(self, *geoms: Geom) -> None:
+    def _add_geoms(self, *added_geoms: Geom) -> None:
         """Register geom type objects into environments and set corresponding attributes."""
         for geom in added_geoms:
             assert (
