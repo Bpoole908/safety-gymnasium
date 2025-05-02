@@ -243,6 +243,7 @@ class Builder(gymnasium.Env, gymnasium.utils.EzPickle):
         # Timeout
         self.steps += 1
         if self.steps >= self.task.num_steps:
+            info['goal_met'] = False
             self.truncated = True  # Maximum number of steps in an episode reached
 
         if self.render_parameters.mode == 'human':
